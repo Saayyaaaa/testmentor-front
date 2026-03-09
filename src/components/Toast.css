@@ -1,0 +1,41 @@
+.tm-toast {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 9999;
+  min-width: 280px;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  padding: 14px 14px;
+  display: grid;
+  grid-template-columns: 24px 1fr 24px;
+  gap: 10px;
+  align-items: center;
+  backdrop-filter: blur(10px);
+}
+
+.tm-toast__icon {
+  font-size: 18px;
+  opacity: 0.85;
+}
+
+.tm-toast__text {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.tm-toast__close {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.tm-toast__close:hover {
+  opacity: 1;
+}

@@ -1,0 +1,128 @@
+.stats-page {
+  min-height: calc(100vh - 70px);
+  background: linear-gradient(180deg, #eef1f4 0%, #e7eaee 65%, #e7eaee 100%);
+  padding: 28px 16px;
+}
+
+.stats-wrap {
+  width: min(980px, 100%);
+  margin: 0 auto;
+}
+
+.stats-title {
+  font-size: 28px;
+  font-weight: 950;
+  letter-spacing: 0.2px;
+  color: #0f172a;
+  text-align: center;
+}
+
+.stats-sub {
+  margin-top: 6px;
+  color: rgba(15, 23, 42, 0.60);
+  font-weight: 800;
+  text-align: center;
+}
+
+.stats-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.stats-card {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.10);
+  backdrop-filter: blur(10px);
+}
+
+.stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  color: rgba(15, 23, 42, 0.72);
+  font-weight: 800;
+}
+
+.stats-row:last-child {
+  border-bottom: none;
+}
+
+.stats-row b {
+  color: #0f172a;
+}
+
+.stats-progress {
+  padding: 6px 2px 12px;
+}
+
+.stats-progress__label {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(15, 23, 42, 0.78);
+  font-weight: 900;
+}
+
+.stats-bar {
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.stats-bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #8b0000;
+}
+
+.stats-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.stats-btn {
+  min-width: 160px;
+  background: rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  color: #0f172a;
+  border-radius: 14px;
+  padding: 12px 14px;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.stats-btn:hover {
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.stats-btn--primary {
+  background: #8b0000;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.stats-btn--primary:hover {
+  filter: brightness(1.05);
+}
+
+@media (max-width: 820px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .stats-actions {
+    flex-direction: column;
+  }
+  .stats-btn {
+    width: 100%;
+  }
+}

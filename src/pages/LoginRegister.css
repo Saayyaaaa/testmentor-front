@@ -1,0 +1,96 @@
+/* src/pages/LoginRegister.css */
+
+.auth-wrap {
+  height: calc(100vh - 68px);  /* высота экрана минус navbar */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: radial-gradient(80% 80% at 30% 20%, rgba(255,255,255,0.06), transparent 60%),
+              #0b0f1a;
+
+  padding: 20px;
+}
+
+/* карточка */
+.auth-card {
+  width: 420px;
+  max-width: 100%;
+
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 18px;
+
+  padding: 28px;
+
+  backdrop-filter: blur(10px);
+
+  /* важное: никакого float/position */
+  position: relative;
+  margin: 0 auto;
+}
+
+.auth-title {
+  text-align: center;
+  margin: 0 0 18px;
+  font-size: 28px;
+  font-weight: 800;
+  color: #eaf4ff;
+}
+
+.auth-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 12px;
+
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.auth-field input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #eaf4ff;
+  font-size: 14px;
+}
+
+.auth-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.25);
+  color: #eaf4ff;
+}
+
+.auth-links {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.auth-error {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #ffb4b4;
+  opacity: 0.95;
+}
+
+.auth-icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.9;
+}
