@@ -13,6 +13,8 @@ export default function Navbar() {
 
   const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
 
+  const isAdmin = user?.roles?.includes("ROLE_ADMIN");
+
   function onSearchSubmit(e) {
     e.preventDefault();
     const q = search.trim();
@@ -54,6 +56,7 @@ export default function Navbar() {
             <Link to="/generator">Test Generator</Link>
             <Link to="/review">Review Panel</Link>
             <Link to="/learning">My Learning</Link>
+            {isAdmin && <Link to="/admin/users">Users</Link>}
           </nav>
 
           {!user ? (

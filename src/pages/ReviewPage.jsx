@@ -15,8 +15,12 @@ export default function ReviewPage() {
   const [expandedId, setExpandedId] = useState(null);
   const [detailsById, setDetailsById] = useState({});
   const [commentById, setCommentById] = useState({});
+  const [scope, setScope] = useState("all");
 
-  async function load() {
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ title: "", description: "" });
+
+  async function load(activeScope = scope) {
     if (!user || !token) {
       showToast("Please log in or register");
       navigate("/login");
@@ -25,7 +29,7 @@ export default function ReviewPage() {
 
     try {
       setLoading(true);
-      const data = await apiFetch("/api/mentor/review", { token });
+      const data = await apiFetch(`/api/mentor/review?scope=${activeScope}`, { token });
       setItems(Array.isArray(data) ? data : []);
     } catch (e) {
       showToast(e.message || "Failed to load review list");
@@ -35,8 +39,8 @@ export default function ReviewPage() {
   }
 
   useEffect(() => {
-    load();
-  }, []);
+    load(scope);
+  }, [scope]);
 
   async function vote(id, voteType) {
     try {
@@ -50,6 +54,49 @@ export default function ReviewPage() {
       await load();
     } catch (e) {
       showToast(e.message || "Vote failed");
+    }
+  }
+
+  async function deleteQuiz(id) {
+    if (!window.confirm("Delete this quiz?")) return;
+
+    try {
+      await apiFetch(`/api/mentor/review/${id}`, {
+        method: "DELETE",
+        token,
+      });
+      showToast("Quiz deleted");
+      await load();
+    } catch (e) {
+      showToast(e.message || "Delete failed");
+    }
+  }
+
+  function startEdit(quiz) {
+    const id = quiz.quizId || quiz.quizID || quiz.id;
+    const title = quiz.title || "";
+    const description = quiz.description || "";
+
+    setEditingId(id);
+    setEditForm({ title, description });
+  }
+
+  async function saveEdit(id) {
+    try {
+      await apiFetch(`/api/mentor/review/${id}`, {
+        method: "PATCH",
+        token,
+        body: {
+          title: editForm.title,
+          description: editForm.description,
+        },
+      });
+
+      showToast("Quiz updated");
+      setEditingId(null);
+      await load();
+    } catch (e) {
+      showToast(e.message || "Update failed");
     }
   }
 
@@ -79,29 +126,50 @@ export default function ReviewPage() {
         <div className="review-head">
           <div className="review-title">Review Panel</div>
           <div className="review-subtitle">
-            All tests are shown here. Voting is available only for pending tests.
+            Vote on pending quizzes, or switch to your own quizzes to manage them.
+          </div>
+
+          <div className="review-switch">
+            <button
+              className={`review-switch__btn ${scope === "all" ? "active" : ""}`}
+              onClick={() => setScope("all")}
+            >
+              All quizzes
+            </button>
+            <button
+              className={`review-switch__btn ${scope === "mine" ? "active" : ""}`}
+              onClick={() => setScope("mine")}
+            >
+              My quizzes
+            </button>
           </div>
         </div>
 
         {loading ? (
           <div className="review-empty">Loading...</div>
         ) : items.length === 0 ? (
-          <div className="review-empty">No quizzes to review right now.</div>
+          <div className="review-empty">
+            {scope === "mine" ? "You have no quizzes yet." : "No quizzes to review right now."}
+          </div>
         ) : (
           <div className="review-list">
             {items.map((quiz) => {
-              const title = quiz.title || quiz.Title || "Untitled";
-              const id = quiz.quizId || quiz.quizID || quiz.QuizID || quiz.id;
-              const desc = quiz.description || quiz.Description || "";
-              const myVote = quiz.myVote || quiz.MyVote || null;
+              const title = quiz.title || "Untitled";
+              const id = quiz.quizId || quiz.quizID || quiz.id;
+              const desc = quiz.description || "";
+              const myVote = quiz.myVote || null;
               const voted = !!myVote;
-              const status = quiz.status || quiz.Status || "PENDING";
-              const approvals = quiz.approvalsCount ?? quiz.ApprovalsCount ?? 0;
-              const rejects = quiz.rejectsCount ?? quiz.RejectsCount ?? 0;
-              const canVote = String(status) === "PENDING" && !voted;
+              const status = quiz.status || "PENDING";
+              const approvals = quiz.approvalsCount ?? 0;
+              const rejects = quiz.rejectsCount ?? 0;
+              const canVote = String(status) === "PENDING" && !voted && scope === "all";
               const isExpanded = String(expandedId) === String(id);
               const details = detailsById[id];
               const statusClass = getStatusClass(status);
+              const canEdit = !!quiz.canEdit;
+              const canDelete = !!quiz.canDelete;
+              const authorName = quiz.authorName || "Unknown";
+              const isEditing = String(editingId) === String(id);
 
               return (
                 <div
@@ -114,10 +182,37 @@ export default function ReviewPage() {
                 >
                   <div className="review-card__top">
                     <div className="review-card__main">
-                      <div className="review-card__title">{title}</div>
-                      {desc && <div className="review-card__desc">{desc}</div>}
+                      {isEditing ? (
+                        <>
+                          <input
+                            className="review-edit-input"
+                            value={editForm.title}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) =>
+                              setEditForm((prev) => ({ ...prev, title: e.target.value }))
+                            }
+                            placeholder="Quiz title"
+                          />
+                          <textarea
+                            className="review-edit-textarea"
+                            value={editForm.description}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) =>
+                              setEditForm((prev) => ({ ...prev, description: e.target.value }))
+                            }
+                            placeholder="Quiz description"
+                            rows={3}
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <div className="review-card__title">{title}</div>
+                          {desc && <div className="review-card__desc">{desc}</div>}
+                        </>
+                      )}
 
                       <div className="review-meta">
+                        <span>Author: {authorName}</span>
                         <span>Approvals: {approvals}</span>
                         <span>Rejects: {rejects}</span>
                       </div>
@@ -133,7 +228,7 @@ export default function ReviewPage() {
                   </div>
 
                   <div className="review-actions" onClick={(e) => e.stopPropagation()}>
-                    {String(status) === "PENDING" && (
+                    {scope === "all" && String(status) === "PENDING" && (
                       <textarea
                         className="review-comment"
                         placeholder="Comment (optional)"
@@ -146,31 +241,67 @@ export default function ReviewPage() {
                       />
                     )}
 
-                    <button
-                      className="review-btn approve"
-                      onClick={() => vote(id, "APPROVE")}
-                      disabled={!canVote}
-                      title={!canVote ? "Vote is not available" : "Approve"}
-                    >
-                      Approve
-                    </button>
+                    {scope === "all" && (
+                      <>
+                        <button
+                          className="review-btn approve"
+                          onClick={() => vote(id, "APPROVE")}
+                          disabled={!canVote}
+                        >
+                          Approve
+                        </button>
 
-                    <button
-                      className="review-btn reject"
-                      onClick={() => vote(id, "REJECT")}
-                      disabled={!canVote}
-                      title={!canVote ? "Vote is not available" : "Reject"}
-                    >
-                      Reject
-                    </button>
+                        <button
+                          className="review-btn reject"
+                          onClick={() => vote(id, "REJECT")}
+                          disabled={!canVote}
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
 
                     <button
                       className="review-btn open"
                       onClick={() => navigate(`/quiz/${id}`)}
-                      title="Open quiz"
                     >
                       Open
                     </button>
+
+                    {canEdit && !isEditing && (
+                      <button
+                        className="review-btn open"
+                        onClick={() => startEdit(quiz)}
+                      >
+                        Edit
+                      </button>
+                    )}
+
+                    {canEdit && isEditing && (
+                      <>
+                        <button
+                          className="review-btn approve"
+                          onClick={() => saveEdit(id)}
+                        >
+                          Save
+                        </button>
+                        <button
+                          className="review-btn reject"
+                          onClick={() => setEditingId(null)}
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    )}
+
+                    {canDelete && (
+                      <button
+                        className="review-btn reject"
+                        onClick={() => deleteQuiz(id)}
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
 
                   {isExpanded && (

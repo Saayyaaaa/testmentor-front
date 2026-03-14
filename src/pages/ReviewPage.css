@@ -257,4 +257,35 @@
   .review-btn {
     width: 100%;
   }
+  
+  .review-switch {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .review-switch__btn {
+    border: 1px solid #0f6d68;
+    background: white;
+    color: #0f6d68;
+    padding: 10px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .review-switch__btn.active {
+    background: #0f6d68;
+    color: white;
+  }
+
+  .review-edit-input,
+  .review-edit-textarea {
+    width: 100%;
+    border: 1px solid #cfd6dc;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    font: inherit;
+  }
 }

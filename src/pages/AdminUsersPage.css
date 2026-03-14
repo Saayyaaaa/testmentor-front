@@ -1,0 +1,127 @@
+.admin-users-page {
+  min-height: calc(100vh - 92px);
+  background: #f3f5f8;
+  padding: 32px 20px;
+}
+
+.admin-users-card {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.admin-users-head h1 {
+  margin: 0 0 8px;
+  color: #073331;
+}
+
+.admin-users-head p {
+  margin: 0 0 20px;
+  color: #5f6b7a;
+}
+
+.admin-users-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.admin-users-tabs button {
+  border: 1px solid #0f6d68;
+  background: #fff;
+  color: #0f6d68;
+  padding: 10px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.admin-users-tabs button.active {
+  background: #0f6d68;
+  color: #fff;
+}
+
+.admin-users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px 20px;
+
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.admin-user-row:hover {
+  border-color: #cbd5f5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.admin-user-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.admin-user-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #475569;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.admin-user-meta span:last-child {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.admin-user-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.admin-user-actions button {
+  border: none;
+  background: #0f6d68;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.admin-users-empty {
+  padding: 32px 0;
+  color: #6b7280;
+}
+
+.admin-user-actions button {
+  border: none;
+  background: #0f766e;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.admin-user-actions button:hover {
+  background: #0d5f59;
+}

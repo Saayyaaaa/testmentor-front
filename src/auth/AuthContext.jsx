@@ -3,11 +3,10 @@ import { apiFetch } from "../api/http";
 
 const AuthContext = createContext(null);
 
-function decodeJwtUsername(token) {
+function parseJwt(token) {
   try {
     const payload = token.split(".")[1];
-    const json = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
-    return json.sub || null; // backend кладёт username в subject
+    return JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
   } catch {
     return null;
   }
@@ -18,17 +17,44 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const t = localStorage.getItem("tm_token");
     if (!t) return null;
-    const name = decodeJwtUsername(t);
-    return name ? { name } : null;
+    const payload = parseJwt(t);
+    if (!payload?.sub) return null;
+
+    const roles =
+      payload.roles ||
+      payload.authorities ||
+      payload.auth ||
+      [];
+
+    return {
+      name: payload.sub,
+      roles: Array.isArray(roles) ? roles : String(roles).split(","),
+    };
   });
 
   useEffect(() => {
     if (token) {
+      localStorage.setItem("tm_token", token);
       localStorage.setItem("token", token);
-      const name = decodeJwtUsername(token);
-      setUser(name ? { name } : null);
+
+      const payload = parseJwt(token);
+      const roles =
+        payload?.roles ||
+        payload?.authorities ||
+        payload?.auth ||
+        [];
+
+      setUser(
+        payload?.sub
+          ? {
+              name: payload.sub,
+              roles: Array.isArray(roles) ? roles : String(roles).split(","),
+            }
+          : null
+      );
     } else {
       localStorage.removeItem("tm_token");
+      localStorage.removeItem("token");
       setUser(null);
     }
   }, [token]);
@@ -36,7 +62,6 @@ export function AuthProvider({ children }) {
   async function login({ name, password }) {
     const data = await apiFetch("/api/auth/signing", {
       method: "POST",
-      // apiFetch will JSON.stringify objects and set Content-Type
       body: { name, password },
     });
     setToken(data.token);

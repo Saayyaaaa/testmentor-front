@@ -9,6 +9,7 @@ import LearningPage from "./pages/LearningPage";
 import StatisticsPage from "./pages/StatisticsPage";
 import ProfilePage from "./pages/ProfilePage";
 import QuizTakePage from "./pages/QuizTakePage";
+import AdminUsersPage from "./pages/AdminUsersPage";
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/admin/users" element={<AdminUsersPage />} />
       </Routes>
     </>
   );
