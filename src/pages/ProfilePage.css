@@ -38,3 +38,23 @@
 @media (max-width: 900px){
   .prof-grid{grid-template-columns: 1fr}
 }
+
+.prof-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.prof-input {
+  width: 100%;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  outline: none;
+}
+
+.prof-input::placeholder {
+  color: rgba(255,255,255,.55);
+}
