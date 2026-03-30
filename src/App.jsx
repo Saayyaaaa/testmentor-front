@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import GeneratorPage from "./pages/GeneratorPage";
 import ReviewPage from "./pages/ReviewPage";
+import ReviewDetailsPage from "./pages/ReviewDetailsPage";
 import LearningPage from "./pages/LearningPage";
 import StatisticsPage from "./pages/StatisticsPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/generator" element={<GeneratorPage />} />
         <Route path="/review" element={<ReviewPage />} />
+        <Route path="/review/:id" element={<ReviewDetailsPage />} />
         <Route path="/learning" element={<LearningPage />} />
         <Route path="/quiz/:id" element={<QuizTakePage />} />
         <Route path="/statistics/:id" element={<StatisticsPage />} />
