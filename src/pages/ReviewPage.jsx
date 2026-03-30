@@ -248,6 +248,16 @@ export default function ReviewPage() {
                       Open
                     </button>
 
+                    {(user?.roles || []).includes("ROLE_ADMIN") || canEdit ? (
+                      <button
+                        type="button"
+                        className="review-btn open"
+                        onClick={() => navigate(`/statistics/${id}?mode=overview`)}
+                      >
+                        Statistics
+                      </button>
+                    ) : null}
+
                     {canEdit && !isEditing && (
                       <button type="button" className="review-btn open" onClick={() => startEdit(quiz)}>
                         Edit

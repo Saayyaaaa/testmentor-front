@@ -80,7 +80,7 @@ export default function LearningPage() {
 
                   <button
                     className="learn-btn learn-btn--danger"
-                    onClick={() => navigate(`/statistics/${id}`)}
+                    onClick={() => navigate(`/statistics/${id}?mode=personal`)}
                   >
                     statistics
                   </button>

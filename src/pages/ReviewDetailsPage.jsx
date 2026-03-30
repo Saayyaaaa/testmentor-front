@@ -291,6 +291,16 @@ export default function ReviewDetailsPage() {
               Start quiz
             </button>
 
+            {((user?.roles || []).includes("ROLE_ADMIN") || details.canEdit) && (
+              <button
+                type="button"
+                className="review-details-btn neutral"
+                onClick={() => navigate(`/statistics/${id}?mode=overview`)}
+              >
+                Statistics
+              </button>
+            )}
+
             {details.canEdit && !editing && (
               <button
                 type="button"
