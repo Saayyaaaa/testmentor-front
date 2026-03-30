@@ -15,6 +15,11 @@ The frontend provides the user interface for:
 - viewing results and statistics
 - user profile page
 
+##
+<img width="1896" height="887" alt="Снимок экрана 2026-03-30 201857" src="https://github.com/user-attachments/assets/ca3d8517-7c86-4fc6-8199-3b4be4661c8f" />
+<img width="1884" height="882" alt="Снимок экрана 2026-03-30 201910" src="https://github.com/user-attachments/assets/7429e2f9-2c68-4be2-85b9-4855c9a0970d" />
+
+
 ## Tech stack
 
 - React 19
