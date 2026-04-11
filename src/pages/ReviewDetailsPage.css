@@ -283,4 +283,43 @@
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .review-question-edit-top {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.review-question-options-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-option-edit-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.review-option-correct {
+  font-weight: 700;
+  color: #15324b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 720px) {
+  .review-question-edit-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .review-option-edit-row {
+    grid-template-columns: 1fr;
+  }
+}
 }

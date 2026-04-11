@@ -5,6 +5,24 @@ import { useAuth } from "../auth/AuthContext";
 import { useToast } from "../components/Toast";
 import "./ReviewDetailsPage.css";
 
+function mapQuizToEditForm(data) {
+  return {
+    title: data?.title || "",
+    description: data?.description || "",
+    questions: (data?.questions || []).map((q) => ({
+      questionID: q.questionID,
+      questionText: q.questionText || "",
+      questionType: q.questionType || "",
+      aiAnswer: q.aiAnswer || "",
+      options: (q.options || []).map((op) => ({
+        optionID: op.optionID,
+        optionText: op.optionText || "",
+        correct: !!(op.correct ?? op.isCorrect),
+      })),
+    })),
+  };
+}
+
 export default function ReviewDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -15,7 +33,11 @@ export default function ReviewDetailsPage() {
   const [details, setDetails] = useState(null);
   const [comment, setComment] = useState("");
   const [editing, setEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ title: "", description: "" });
+  const [editForm, setEditForm] = useState({
+    title: "",
+    description: "",
+    questions: [],
+  });
   const [generatingMore, setGeneratingMore] = useState(false);
 
   async function loadDetails() {
@@ -29,10 +51,7 @@ export default function ReviewDetailsPage() {
       const data = await apiFetch(`/api/mentor/review/${id}`, { token });
       setDetails(data);
       setComment(data?.myComment || "");
-      setEditForm({
-        title: data?.title || "",
-        description: data?.description || "",
-      });
+      setEditForm(mapQuizToEditForm(data));
     } catch (e) {
       showToast(e.message || "Failed to load quiz details");
       navigate("/review");
@@ -43,9 +62,13 @@ export default function ReviewDetailsPage() {
 
   useEffect(() => {
     loadDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const questions = useMemo(() => details?.questions || [], [details]);
+  const questions = useMemo(() => {
+    return editing ? editForm.questions || [] : details?.questions || [];
+  }, [details, editing, editForm.questions]);
+
   const comments = useMemo(() => details?.comments || [], [details]);
   const myVote = details?.myVote || null;
 
@@ -54,6 +77,16 @@ export default function ReviewDetailsPage() {
     if (s === "APPROVED") return "approved";
     if (s === "REJECTED") return "rejected";
     return "pending";
+  }
+
+  function startEditing() {
+    setEditForm(mapQuizToEditForm(details));
+    setEditing(true);
+  }
+
+  function cancelEditing() {
+    setEditForm(mapQuizToEditForm(details));
+    setEditing(false);
   }
 
   async function vote(voteType) {
@@ -67,7 +100,9 @@ export default function ReviewDetailsPage() {
         },
       });
 
-      showToast(voteType === "APPROVE" ? "Vote saved: approve" : "Vote saved: reject");
+      showToast(
+        voteType === "APPROVE" ? "Vote saved: approve" : "Vote saved: reject"
+      );
       await loadDetails();
     } catch (e) {
       showToast(e.message || "Vote failed");
@@ -79,7 +114,21 @@ export default function ReviewDetailsPage() {
       await apiFetch(`/api/mentor/review/${id}`, {
         method: "PATCH",
         token,
-        body: editForm,
+        body: {
+          title: editForm.title,
+          description: editForm.description,
+          questions: (editForm.questions || []).map((q) => ({
+            questionID: q.questionID,
+            questionText: q.questionText,
+            questionType: q.questionType,
+            aiAnswer: q.aiAnswer,
+            options: (q.options || []).map((op) => ({
+              optionID: op.optionID,
+              optionText: op.optionText,
+              isCorrect: !!op.correct,
+            })),
+          })),
+        },
       });
 
       showToast("Quiz updated");
@@ -104,6 +153,68 @@ export default function ReviewDetailsPage() {
     } catch (e) {
       showToast(e.message || "Delete failed");
     }
+  }
+
+  function handleDeleteQuestion(questionIndex) {
+    setEditForm((prev) => ({
+      ...prev,
+      questions: prev.questions.filter((_, idx) => idx !== questionIndex),
+    }));
+  }
+
+  function handleDeleteOption(questionIndex, optionIndex) {
+    setEditForm((prev) => ({
+      ...prev,
+      questions: prev.questions.map((q, idx) =>
+        idx === questionIndex
+          ? {
+              ...q,
+              options: q.options.filter((_, opIdx) => opIdx !== optionIndex),
+            }
+          : q
+      ),
+    }));
+  }
+
+  function handleQuestionTextChange(questionIndex, value) {
+    setEditForm((prev) => ({
+      ...prev,
+      questions: prev.questions.map((q, idx) =>
+        idx === questionIndex ? { ...q, questionText: value } : q
+      ),
+    }));
+  }
+
+  function handleOptionTextChange(questionIndex, optionIndex, value) {
+    setEditForm((prev) => ({
+      ...prev,
+      questions: prev.questions.map((q, idx) =>
+        idx === questionIndex
+          ? {
+              ...q,
+              options: q.options.map((op, opIdx) =>
+                opIdx === optionIndex ? { ...op, optionText: value } : op
+              ),
+            }
+          : q
+      ),
+    }));
+  }
+
+  function handleOptionCorrectChange(questionIndex, optionIndex, checked) {
+    setEditForm((prev) => ({
+      ...prev,
+      questions: prev.questions.map((q, idx) =>
+        idx === questionIndex
+          ? {
+              ...q,
+              options: q.options.map((op, opIdx) =>
+                opIdx === optionIndex ? { ...op, correct: checked } : op
+              ),
+            }
+          : q
+      ),
+    }));
   }
 
   async function handleGenerateMoreQuestions() {
@@ -159,7 +270,10 @@ export default function ReviewDetailsPage() {
                     className="review-details-input"
                     value={editForm.title}
                     onChange={(e) =>
-                      setEditForm((prev) => ({ ...prev, title: e.target.value }))
+                      setEditForm((prev) => ({
+                        ...prev,
+                        title: e.target.value,
+                      }))
                     }
                     placeholder="Quiz title"
                   />
@@ -167,7 +281,10 @@ export default function ReviewDetailsPage() {
                     className="review-details-textarea"
                     value={editForm.description}
                     onChange={(e) =>
-                      setEditForm((prev) => ({ ...prev, description: e.target.value }))
+                      setEditForm((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
                     }
                     placeholder="Quiz description"
                     rows={3}
@@ -175,7 +292,9 @@ export default function ReviewDetailsPage() {
                 </>
               ) : (
                 <>
-                  <h1 className="review-details-title">{details.title || "Untitled"}</h1>
+                  <h1 className="review-details-title">
+                    {details.title || "Untitled"}
+                  </h1>
                   {details.description && (
                     <p className="review-details-desc">{details.description}</p>
                   )}
@@ -187,12 +306,21 @@ export default function ReviewDetailsPage() {
                 <span>Approvals: {details.approvalsCount ?? 0}</span>
                 <span>Rejects: {details.rejectsCount ?? 0}</span>
                 <span>
-                  Your vote: {myVote ? (myVote === "APPROVE" ? "Approve" : "Reject") : "Not voted"}
+                  Your vote:{" "}
+                  {myVote
+                    ? myVote === "APPROVE"
+                      ? "Approve"
+                      : "Reject"
+                    : "Not voted"}
                 </span>
               </div>
             </div>
 
-            <div className={`review-details-badge ${getStatusClass(details.status)}`}>
+            <div
+              className={`review-details-badge ${getStatusClass(
+                details.status
+              )}`}
+            >
               {details.status}
             </div>
           </div>
@@ -203,24 +331,102 @@ export default function ReviewDetailsPage() {
             ) : (
               questions.map((q, idx) => (
                 <div className="review-question-card" key={q.questionID || idx}>
-                  <div className="review-question-title">
-                    {idx + 1}. {q.questionText}
-                  </div>
+                  {editing ? (
+                    <>
+                      <div className="review-question-edit-top">
+                        <input
+                          className="review-details-input"
+                          value={q.questionText}
+                          onChange={(e) =>
+                            handleQuestionTextChange(idx, e.target.value)
+                          }
+                          placeholder={`Question ${idx + 1}`}
+                        />
 
-                  {q.aiAnswer && (
-                    <div className="review-question-ai">
-                      <strong>AI answer:</strong> {q.aiAnswer}
-                    </div>
+                        <button
+                          type="button"
+                          className="review-details-btn reject"
+                          onClick={() => handleDeleteQuestion(idx)}
+                        >
+                          Delete question
+                        </button>
+                      </div>
+
+                      {q.aiAnswer && (
+                        <div className="review-question-ai">
+                          <strong>AI answer:</strong> {q.aiAnswer}
+                        </div>
+                      )}
+
+                      <div className="review-question-options-edit">
+                        {(q.options || []).map((op, optionIdx) => (
+                          <div
+                            className="review-option-edit-row"
+                            key={op.optionID || optionIdx}
+                          >
+                            <input
+                              className="review-details-input"
+                              value={op.optionText}
+                              onChange={(e) =>
+                                handleOptionTextChange(
+                                  idx,
+                                  optionIdx,
+                                  e.target.value
+                                )
+                              }
+                              placeholder={`Option ${optionIdx + 1}`}
+                            />
+
+                            <label className="review-option-correct">
+                              <input
+                                type="checkbox"
+                                checked={!!op.correct}
+                                onChange={(e) =>
+                                  handleOptionCorrectChange(
+                                    idx,
+                                    optionIdx,
+                                    e.target.checked
+                                  )
+                                }
+                              />
+                              Correct
+                            </label>
+
+                            <button
+                              type="button"
+                              className="review-details-btn reject"
+                              onClick={() =>
+                                handleDeleteOption(idx, optionIdx)
+                              }
+                            >
+                              Delete answer
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="review-question-title">
+                        {idx + 1}. {q.questionText}
+                      </div>
+
+                      {q.aiAnswer && (
+                        <div className="review-question-ai">
+                          <strong>AI answer:</strong> {q.aiAnswer}
+                        </div>
+                      )}
+
+                      <ul className="review-question-options">
+                        {(q.options || []).map((op, optionIdx) => (
+                          <li key={op.optionID || optionIdx}>
+                            {op.optionText}
+                            {op.correct ? <b> (correct)</b> : null}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
                   )}
-
-                  <ul className="review-question-options">
-                    {(q.options || []).map((op, optionIdx) => (
-                      <li key={op.optionID || optionIdx}>
-                        {op.optionText}
-                        {op.correct ? <b> (correct)</b> : null}
-                      </li>
-                    ))}
-                  </ul>
                 </div>
               ))
             )}
@@ -240,7 +446,9 @@ export default function ReviewDetailsPage() {
                         {item.mentorName || "Unknown"}
                       </span>
                       <span
-                        className={`review-comment-vote ${String(item.voteType || "").toLowerCase()}`}
+                        className={`review-comment-vote ${String(
+                          item.voteType || ""
+                        ).toLowerCase()}`}
                       >
                         {item.voteType}
                       </span>
@@ -269,7 +477,9 @@ export default function ReviewDetailsPage() {
 
             <button
               type="button"
-              className={`review-details-btn approve ${myVote === "APPROVE" ? "active" : ""}`}
+              className={`review-details-btn approve ${
+                myVote === "APPROVE" ? "active" : ""
+              }`}
               onClick={() => vote("APPROVE")}
             >
               Approve
@@ -277,7 +487,9 @@ export default function ReviewDetailsPage() {
 
             <button
               type="button"
-              className={`review-details-btn reject ${myVote === "REJECT" ? "active" : ""}`}
+              className={`review-details-btn reject ${
+                myVote === "REJECT" ? "active" : ""
+              }`}
               onClick={() => vote("REJECT")}
             >
               Reject
@@ -305,7 +517,7 @@ export default function ReviewDetailsPage() {
               <button
                 type="button"
                 className="review-details-btn neutral"
-                onClick={() => setEditing(true)}
+                onClick={startEditing}
               >
                 Edit quiz
               </button>
@@ -335,7 +547,7 @@ export default function ReviewDetailsPage() {
                 <button
                   type="button"
                   className="review-details-btn neutral"
-                  onClick={() => setEditing(false)}
+                  onClick={cancelEditing}
                 >
                   Cancel edit
                 </button>
